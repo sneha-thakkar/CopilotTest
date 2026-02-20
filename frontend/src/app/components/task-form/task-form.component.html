@@ -1,0 +1,52 @@
+<div class="form-card">
+  <div class="form-header">
+    <h3>{{ titleLabel }}</h3>
+    <p>Keep tasks short and action-oriented.</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="error" *ngIf="mode === 'edit' && form.get('status')?.value === 'done'">
+      Done tasks are read-only.
+    </div>
+    <label>
+      Title
+      <input type="text" formControlName="title" placeholder="e.g. Draft weekly release notes" [disabled]="mode === 'edit' && form.get('status')?.value === 'done'" />
+    </label>
+    <div class="error" *ngIf="form.get('title')?.touched && form.get('title')?.invalid">
+      Title is required (max 80 chars).
+    </div>
+
+    <label>
+      Description
+      <textarea rows="4" formControlName="description" placeholder="Add a short description" [disabled]="mode === 'edit' && form.get('status')?.value === 'done'"></textarea>
+    </label>
+    <div class="help">Max 240 characters.</div>
+
+    <label>
+      Status
+      <select formControlName="status" [disabled]="mode === 'edit' && form.get('status')?.value === 'done'">
+        <option *ngFor="let option of statusOptions" [value]="option">{{ option }}</option>
+      </select>
+    </label>
+
+    <label>
+      Priority
+      <select formControlName="priorityLevel" [disabled]="mode === 'edit' && form.get('status')?.value === 'done'">
+        <option *ngFor="let option of priorityOptions" [value]="option">{{ option }}</option>
+      </select>
+    </label>
+
+    <label>
+      Due date
+      <input type="date" formControlName="dueDate" [disabled]="mode === 'edit' && form.get('status')?.value === 'done'" />
+    </label>
+    <div class="error" *ngIf="dueDateError">{{ dueDateError }}</div>
+
+    <div class="form-actions">
+      <button class="btn ghost" type="button" (click)="cancel.emit()" *ngIf="mode === 'edit'">Cancel</button>
+      <button class="btn primary" type="submit" [disabled]="isSaving || (mode === 'edit' && form.get('status')?.value === 'done')">
+        {{ mode === 'edit' ? 'Save changes' : 'Create task' }}
+      </button>
+    </div>
+  </form>
+</div>

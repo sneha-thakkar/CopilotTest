@@ -1,0 +1,117 @@
+<div class="page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Task Studio</p>
+      <h1>Plan, track, deliver.</h1>
+      <p class="subtext">Create clear tasks, update progress fast, and keep momentum visible.</p>
+    </div>
+    <div class="hero-actions">
+      <span
+        class="sync-pill"
+        *ngIf="syncStatus$ | async as syncStatus"
+        [class.offline]="syncStatus === 'offline'"
+        [class.syncing]="syncStatus === 'syncing'"
+        [class.error]="syncStatus === 'error'"
+      >
+        {{
+          syncStatus === 'offline'
+            ? 'Offline mode'
+            : syncStatus === 'syncing'
+            ? 'Syncing...'
+            : syncStatus === 'error'
+            ? 'Sync error'
+            : 'Online'
+        }}
+      </span>
+    </div>
+  </header>
+
+  <section class="status-strip">
+    <div>
+      <strong>{{ totalCount }}</strong>
+      <span>Total tasks</span>
+    </div>
+    <div>
+      <strong>{{ todoCount }}</strong>
+      <span>To do</span>
+    </div>
+    <div>
+      <strong>{{ inProgressCount }}</strong>
+      <span>In progress</span>
+    </div>
+    <div>
+      <strong>{{ doneCount }}</strong>
+      <span>Done</span>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="list-panel">
+      <div class="panel-header">
+        <h2>Task list</h2>
+        <button class="btn ghost" (click)="loadTasks()" [disabled]="isLoading">Refresh</button>
+      </div>
+
+      <div class="panel-controls">
+        <label>
+          Filter
+          <select [value]="statusFilter || ''" (change)="updateFilter($any($event.target).value)">
+            <option *ngFor="let option of filterOptions" [value]="option.value || ''">{{ option.label }}</option>
+          </select>
+        </label>
+        <label>
+          Sort by
+          <select [value]="sortBy" (change)="updateSort($any($event.target).value)">
+            <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </label>
+        <label>
+          Sort order
+          <select [value]="sortOrder" (change)="updateOrder($any($event.target).value)">
+            <option *ngFor="let option of orderOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </label>
+        <label>
+          Page size
+          <select [value]="pageSize" (change)="updatePageSize($any($event.target).value)">
+            <option *ngFor="let option of pageSizeOptions" [value]="option">{{ option }}</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="panel-state" *ngIf="isLoading">Loading tasks...</div>
+      <div class="panel-state" *ngIf="isReordering">Saving new order...</div>
+      <div class="panel-state error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <app-task-list
+        [tasks]="tasks"
+        [statusOptions]="statusOptions"
+        [statusUpdatingId]="statusUpdatingId"
+        (edit)="startEdit($event)"
+        (delete)="handleDelete($event)"
+        (statusChange)="handleStatusChange($event)"
+        (reorder)="handleReorder($event)"
+      ></app-task-list>
+
+      <div class="panel-footer" *ngIf="totalItems > 0">
+        <span>Showing {{ tasks.length }} of {{ totalItems }}</span>
+        <div class="pagination">
+          <button class="btn ghost" (click)="goToPreviousPage()" [disabled]="!hasPreviousPage">Previous</button>
+          <span>Page {{ page }} of {{ totalPages }}</span>
+          <button class="btn ghost" (click)="goToNextPage()" [disabled]="!hasNextPage">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-panel">
+      <app-task-form
+        [task]="selectedTask"
+        [mode]="formMode"
+        [statusOptions]="statusOptions"
+        [isSaving]="isSaving"
+        (save)="handleSave($event)"
+        (cancel)="cancelEdit()"
+      ></app-task-form>
+    </div>
+  </section>
+</div>

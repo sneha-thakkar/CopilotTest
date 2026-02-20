@@ -1,0 +1,56 @@
+<div class="task-grid" *ngIf="tasks.length > 0; else emptyState">
+  <article
+    class="task-card"
+    *ngFor="let task of tasks; trackBy: trackById"
+    draggable="true"
+    [class.dragging]="draggingId === task.id"
+    [class.drag-over]="dragOverId === task.id"
+    (dragstart)="onDragStart($event, task)"
+    (dragover)="onDragOver($event, task)"
+    (dragleave)="onDragLeave(task)"
+    (drop)="onDrop($event, task)"
+    (dragend)="onDragEnd()"
+  >
+    <header>
+      <div>
+        <h3>{{ task.title || 'Untitled task' }}</h3>
+        <p class="meta">{{ task.createdAt ? (task.createdAt | date: 'mediumDate') : 'No date' }}</p>
+      </div>
+      <span class="drag-hint">Drag</span>
+      <span class="priority" [class.high]="task.priorityLevel === 'high'" [class.medium]="task.priorityLevel === 'medium'" [class.low]="task.priorityLevel === 'low'">
+        {{ task.priorityLevel || 'medium' }}
+      </span>
+      <span class="status" [class.todo]="task.status === 'todo'" [class.in-progress]="task.status === 'in-progress'" [class.done]="task.status === 'done'">
+        {{ task.status || 'todo' }}
+      </span>
+    </header>
+
+    <p class="description">{{ task.description || 'Add a short description to clarify the task.' }}</p>
+
+    <p class="meta" *ngIf="task.dueDate">Due: {{ task.dueDate | date: 'mediumDate' }}</p>
+
+    <div class="controls">
+      <label>
+        Status
+        <select [value]="task.status" (change)="onStatusChange(task, $any($event.target).value)">
+          <option *ngFor="let option of statusOptions" [value]="option">{{ option }}</option>
+        </select>
+      </label>
+      <div class="actions">
+        <button class="btn ghost" (click)="onEditClick(task)" [title]="task.status === 'done' ? 'Done tasks are read-only' : ''">Edit</button>
+        <button class="btn danger" (click)="delete.emit(task)">Delete</button>
+      </div>
+    </div>
+
+    <div class="read-only" *ngIf="readOnlyTaskId === task.id">Done tasks are read-only.</div>
+
+    <div class="updating" *ngIf="statusUpdatingId === task.id">Updating status...</div>
+  </article>
+</div>
+
+<ng-template #emptyState>
+  <div class="empty">
+    <h3>No tasks yet</h3>
+    <p>Create your first task to get started.</p>
+  </div>
+</ng-template>

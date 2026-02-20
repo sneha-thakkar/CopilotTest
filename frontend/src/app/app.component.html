@@ -1,8 +1,11 @@
-<div>
-  <nav>
-    <a routerLink="/">Home</a> | 
-    <a routerLink="/health">Health</a>
+<div class="app-shell">
+  <nav class="top-nav">
+    <div class="brand">TaskFlow</div>
+    <div class="nav-links">
+      <a routerLink="/">Tasks</a>
+      <a routerLink="/home">Home</a>
+      <a routerLink="/health">Health</a>
+    </div>
   </nav>
-  <hr>
   <router-outlet></router-outlet>
 </div>
